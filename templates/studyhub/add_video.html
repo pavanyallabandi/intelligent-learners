@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Video - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 600px;">
+    <div class="auth-header">
+        <h1>Add Video to {{ group.name }}</h1>
+        <p>Enhance your roadmap with YouTube content.</p>
+    </div>
+
+    <div class="glass-card">
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div style="color: var(--danger); font-size: 0.85rem; margin-bottom: 0.5rem;">{{ field.errors }}</div>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.25rem;">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                <i data-lucide="video" style="width: 18px;"></i>
+                Add Video
+            </button>
+            <a href="{% url 'group_detail' group.group_id %}" class="btn btn-outline" style="width: 100%; margin-top: 0.5rem;">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

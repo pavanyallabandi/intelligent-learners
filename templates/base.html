@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StudyHub - Learn Together{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="nav-brand">
+            <i data-lucide="book-open"></i>
+            StudyHub
+        </a>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                <a href="{% url 'create_group' %}" class="btn btn-primary" style="padding: 0.4rem 1rem;">
+                    <i data-lucide="plus" style="width: 16px;"></i> Create Group
+                </a>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline" style="padding: 0.4rem 1rem;">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 0.4rem 1rem;">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {% if message.tags == 'success' %}
+                    <i data-lucide="check-circle" style="color: var(--success); width: 20px;"></i>
+                {% else %}
+                    <i data-lucide="alert-circle" style="color: var(--danger); width: 20px;"></i>
+                {% endif %}
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Background Image and Quote Rotator logic
+        const backgroundImages = [
+            'https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=2070&auto=format&fit=crop', // Books
+            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1742&auto=format&fit=crop', // Group study
+            'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2070&auto=format&fit=crop', // Workspace
+            'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2073&auto=format&fit=crop', // Library
+            'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop'  // Focus
+        ];
+
+        let imgIndex = 0;
+        
+        function changeBackground() {
+            document.body.style.backgroundImage = `url('${backgroundImages[imgIndex]}')`;
+            imgIndex = (imgIndex + 1) % backgroundImages.length;
+        }
+
+        // Initialize first background
+        changeBackground();
+        
+        // Change image every 15 seconds
+        setInterval(changeBackground, 15000);
+
+        // Remove messages after 5 seconds
+        setTimeout(() => {
+            const msgs = document.querySelectorAll('.message');
+            msgs.forEach(m => {
+                m.style.opacity = '0';
+                setTimeout(() => m.remove(), 300);
+            });
+        }, 5000);
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

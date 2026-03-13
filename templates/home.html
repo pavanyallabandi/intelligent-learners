@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="quote-container">
+    <h1 class="quote-text" id="daily-quote">{{ quotes.0 }}</h1>
+</div>
+
+{% if not user.is_authenticated %}
+<div style="text-align: center; margin-bottom: 3rem;">
+    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1.5rem;">Join a community of focused learners. Track progress, share roadmaps, and achieve goals together.</p>
+    <a href="{% url 'register' %}" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.8rem 2rem;">Get Started Now</a>
+</div>
+{% endif %}
+
+<form class="search-bar" action="{% url 'search_group' %}" method="get">
+    <input type="text" name="q" class="form-control" placeholder="Got a private Group ID? Search here..." required>
+    <button type="submit" class="btn btn-primary">
+        <i data-lucide="search" style="width: 20px;"></i>
+        Join Group
+    </button>
+</form>
+
+{% if user.is_authenticated %}
+<h2 style="margin-bottom: 1.5rem; font-weight: 600; font-size: 1.8rem; display: flex; align-items: center; gap: 0.5rem;">
+    <i data-lucide="book" style="color: var(--primary);"></i>
+    My Roadmaps
+</h2>
+
+<div class="grid" style="margin-bottom: 4rem;">
+    {% for group in user_groups %}
+    <a href="{% url 'group_detail' group.group_id %}" class="glass-card group-card">
+        <div class="group-header">
+            {% if group.creator == user %}
+            <div class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">Creator</div>
+            {% else %}
+            <div class="badge" style="background: rgba(255, 255, 255, 0.1);">Member</div>
+            {% endif %}
+            
+            {% if group.is_admin_group %}
+            <div class="badge badge-admin">Official</div>
+            {% endif %}
+        </div>
+        <h3 class="group-title">{{ group.name }}</h3>
+        <p class="group-desc">{{ group.description|truncatewords:15 }}</p>
+        <div class="group-meta">
+            <span>By {{ group.creator.username }}</span>
+            <span>{{ group.videos.count }} Videos</span>
+        </div>
+    </a>
+    {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">You haven't joined or created any roadmaps yet.</p>
+        <a href="{% url 'create_group' %}" class="btn btn-primary">Create Your First Roadmap</a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2 style="margin-bottom: 1.5rem; font-weight: 600; font-size: 1.8rem; display: flex; align-items: center; gap: 0.5rem;">
+    <i data-lucide="compass" style="color: var(--primary);"></i>
+    Explore Public Roadmaps
+</h2>
+
+<div class="grid">
+    {% for group in admin_groups %}
+    <a href="{% url 'group_detail' group.group_id %}" class="glass-card group-card">
+        <div class="group-header">
+            <div class="badge badge-admin">Official</div>
+            <i data-lucide="users" style="color: var(--text-muted); width: 20px;"></i>
+        </div>
+        <h3 class="group-title">{{ group.name }}</h3>
+        <p class="group-desc">{{ group.description|truncatewords:15 }}</p>
+        <div class="group-meta">
+            <span>By admin</span>
+            <span>{{ group.videos.count }} Videos</span>
+        </div>
+    </a>
+    {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;">
+        <i data-lucide="inbox" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 1rem;"></i>
+        <h3 style="margin-bottom: 0.5rem;">No Admin Groups Yet</h3>
+        <p style="color: var(--text-muted);">The administrators haven't created any public roadmaps yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{{ quotes|json_script:"quotes-data" }}
+
+{% block scripts %}
+<script>
+    const quotesList = JSON.parse(document.getElementById('quotes-data').textContent);
+    let quoteIndex = 0;
+    const quoteEl = document.getElementById('daily-quote');
+
+    function changeQuote() {
+        quoteEl.style.opacity = 0;
+        setTimeout(() => {
+            quoteIndex = (quoteIndex + 1) % quotesList.length;
+            quoteEl.innerText = quotesList[quoteIndex];
+            quoteEl.style.opacity = 1;
+        }, 1000); // Wait for fade out
+    }
+
+    // Change quote every 10 seconds
+    setInterval(changeQuote, 10000);
+</script>
+{% endblock %}
