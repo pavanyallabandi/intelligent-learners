@@ -89,7 +89,8 @@
                     <form method="post" action="{% url 'mark_video' %}" id="mark-form">
                         {% csrf_token %}
                         <input type="hidden" name="video_id" id="current-video-id">
-                        <button type="button" onclick="markCompleted()" class="btn btn-success" style="background: var(--success); color: white; border: none;" id="mark-btn">
+                        <input type="hidden" name="action" id="current-video-action" value="mark">
+                        <button type="button" onclick="toggleCompleted()" class="btn btn-success" style="background: var(--success); color: white; border: none;" id="mark-btn">
                             <i data-lucide="check" style="width: 18px;"></i> Mark Completed
                         </button>
                     </form>
@@ -130,21 +131,27 @@
         document.getElementById('current-video-id').value = id;
         
         const markBtn = document.getElementById('mark-btn');
+        const actionInput = document.getElementById('current-video-action');
         if (isCompleted) {
-            markBtn.style.opacity = '0.5';
-            markBtn.style.pointerEvents = 'none';
-            markBtn.innerHTML = '<i data-lucide="check-circle-2" style="width: 18px;"></i> Completed';
+            actionInput.value = 'unmark';
+            markBtn.style.opacity = '1';
+            markBtn.style.pointerEvents = 'all';
+            markBtn.style.background = 'rgba(255,255,255,0.1)';
+            markBtn.style.color = 'var(--text)';
+            markBtn.innerHTML = '<i data-lucide="x" style="width: 18px;"></i> Unmark Completed';
         } else {
+            actionInput.value = 'mark';
             markBtn.style.opacity = '1';
             markBtn.style.pointerEvents = 'all';
             markBtn.innerHTML = '<i data-lucide="check" style="width: 18px;"></i> Mark Completed';
             markBtn.style.background = 'var(--success)';
+            markBtn.style.color = 'white';
         }
         lucide.createIcons();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function markCompleted() {
+    function toggleCompleted() {
         const form = document.getElementById('mark-form');
         const formData = new FormData(form);
         

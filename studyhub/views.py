@@ -225,12 +225,15 @@ def mark_video(request):
                         GroupMembership.objects.filter(user=request.user, group=video.group, is_accepted=True).exists()
             
             if has_access:
-                # Mark as completed
-                UserProgress.objects.update_or_create(
-                    user=request.user,
-                    video=video,
-                    defaults={'is_completed': True, 'completed_at': timezone.now()}
-                )
+                action = request.POST.get('action', 'mark')
+                if action == 'unmark':
+                    UserProgress.objects.filter(user=request.user, video=video).delete()
+                else:
+                    UserProgress.objects.update_or_create(
+                        user=request.user,
+                        video=video,
+                        defaults={'is_completed': True, 'completed_at': timezone.now()}
+                    )
                 return JsonResponse({'status': 'success'})
             
     return JsonResponse({'status': 'error'}, status=400)
